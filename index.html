@@ -253,6 +253,33 @@
     .custom-pill { display: flex; align-items: center; gap: 5px; background: var(--charcoal); color: white; border-radius: 20px; padding: 4px 10px 4px 12px; font-size: 0.75rem; font-weight: 500; }
     .custom-pill-remove { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 0.9rem; padding: 0; line-height: 1; }
     .custom-pill-remove:hover { color: white; }
+
+    /* ── FAVORITES ── */
+    .fav-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 4px 6px; line-height: 1; transition: transform 0.2s; color: #CCC; }
+    .fav-btn.saved { color: #E8A020; }
+    .fav-btn:active { transform: scale(1.3); }
+    .fav-overlay { position: fixed; inset: 0; background: rgba(30,25,20,0.75); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
+    .fav-overlay.active { display: flex; }
+    .fav-sheet { position: relative; background: var(--cream); border-radius: 22px 22px 0 0; width: 100%; max-width: 600px; max-height: 88vh; overflow-y: auto; padding: 10px 18px 36px; animation: slideUp 0.38s cubic-bezier(0.16,1,0.3,1); }
+    .fav-title { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 700; margin-bottom: 4px; }
+    .fav-empty { text-align: center; color: var(--charcoal-light); font-size: 0.85rem; padding: 40px 0; }
+    .fav-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--cream-dark); }
+    .fav-item:last-child { border-bottom: none; }
+    .fav-item-name { flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--charcoal); }
+    .fav-item-meta { font-size: 0.72rem; color: var(--charcoal-light); margin-top: 2px; }
+    .fav-item-actions { display: flex; gap: 8px; }
+    .fav-view-btn { background: none; border: 1.5px solid var(--terracotta); color: var(--terracotta); border-radius: 10px; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; }
+    .fav-add-btn { background: var(--sage); border: none; color: white; border-radius: 10px; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; }
+    .fav-add-btn:disabled { background: #CCC; cursor: not-allowed; }
+    .fav-remove-btn { background: none; border: none; color: #CCC; font-size: 1rem; cursor: pointer; padding: 4px; }
+
+    /* ── HEART BURST ── */
+    .heart-burst { position: fixed; pointer-events: none; z-index: 9999; font-size: 1.4rem; animation: heartFloat 0.9s ease-out forwards; }
+    @keyframes heartFloat {
+      0%   { opacity: 1; transform: translateY(0) scale(0.6) rotate(var(--rot)); }
+      40%  { opacity: 1; transform: translateY(-60px) scale(1.2) rotate(var(--rot)); }
+      100% { opacity: 0; transform: translateY(-120px) scale(0.8) rotate(var(--rot)); }
+    }
     /* ── PRINT BUTTON ── */
     .print-btn { width: 100%; margin-top: 8px; padding: 9px; border: 1.5px solid #DDD; background: transparent; color: var(--charcoal-light); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 400; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .print-btn:hover { border-color: var(--charcoal); color: var(--charcoal); background: var(--cream-dark); }
@@ -555,6 +582,7 @@
   </div>
 
   <!-- ── FLOATING WEEK BUTTON ── -->
+  <button class="week-float" id="favFloat" onclick="openFavs()" style="display:none;bottom:auto;top:16px;right:16px;background:#E8A020;padding:8px 14px;font-size:0.8rem;">⭐ <span id="favCount">0</span></button>
   <button class="week-float" id="weekFloat" onclick="openPlanner()">
     📅 My Week <span class="wf-count" id="weekCount">0</span>
   </button>
@@ -575,7 +603,17 @@
   </div>
 
   <!-- ── SHOPPING LIST MODAL ── -->
-  <div class="shoplist-overlay" id="shoplistOverlay">
+  <!-- ── FAVORITES SHEET ── -->
+  <div class="fav-overlay" id="favOverlay">
+    <div class="fav-sheet">
+      <button onclick="closeFavs()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#888">✕</button>
+      <div class="fav-title">⭐ Favourites</div>
+      <div style="font-size:0.74rem;color:var(--charcoal-light);margin-bottom:16px">Your saved recipes — add to this week with one tap.</div>
+      <div id="favContent"></div>
+    </div>
+  </div>
+
+    <div class="shoplist-overlay" id="shoplistOverlay">
     <div class="shoplist-sheet">
       <div class="modal-handle"></div>
       <button class="close-btn" onclick="closeShoppingList()">✕</button>
@@ -1722,6 +1760,7 @@ function renderResults(results, selectedArr, strictMode = false) {
             <span class="recipe-time">⏱ ${recipe.time}</span>
             <span class="recipe-cuisine">${CUISINE_EMOJI[recipe.cuisine] || ''} ${recipe.cuisine}</span>
             <span class="match-score" style="margin:0;">✅ ${matchedCount} ingredient${matchedCount !== 1 ? 's' : ''} matched</span>
+            <button class="fav-btn ${getFavs().find(f=>f.id===recipe.id)?'saved':''}" onclick="toggleFav('${recipe.id}')" title="Save to favourites">${getFavs().find(f=>f.id===recipe.id)?'★':'☆'}</button>
           </div>
         </div>
         <span class="choice-card-arrow">›</span>
@@ -1771,7 +1810,7 @@ function showRecipe(idx, isKids) {
     <div class="star-row">
       <span class="star-label">Rate this recipe:</span>
       <div class="stars" id="stars-${recipe.id}">
-        ${[1,2,3,4,5].map(n => `<span class="star ${n <= currentRating ? 'lit' : ''}" onclick="rateRecipe('${recipe.id}',${n})" ontouchend="event.preventDefault();rateRecipe('${recipe.id}',${n})" title="${n} star${n>1?'s':''}">★</span>`).join('')}
+        ${[1,2,3,4,5].map(n => `<span class="star ${n <= currentRating ? 'lit' : ''}" data-recipe="${recipe.id}" data-star="${n}">★</span>`).join('')}
       </div>
       ${lastCookedText ? `<span class="last-cooked">${lastCookedText}</span>` : ''}
     </div>`;
@@ -1832,7 +1871,6 @@ function showRecipe(idx, isKids) {
 function rateRecipe(recipeId, stars) {
   const ratings = getRatings();
   const current = ratings[recipeId] || 0;
-  // Tapping the same star again clears the rating
   const newRating = (current === stars) ? 0 : stars;
   saveRating(recipeId, newRating);
   const container = document.getElementById('stars-' + recipeId);
@@ -1842,6 +1880,28 @@ function rateRecipe(recipeId, stars) {
     });
   }
 }
+
+// Single touch/click handler for stars — prevents double-fire on mobile
+(function() {
+  let lastTouch = 0;
+  document.addEventListener('touchend', function(e) {
+    const star = e.target.closest('.star');
+    if (!star) return;
+    e.preventDefault();
+    const now = Date.now();
+    if (now - lastTouch < 400) return; // debounce
+    lastTouch = now;
+    rateRecipe(star.dataset.recipe, parseInt(star.dataset.star));
+  }, { passive: false });
+
+  document.addEventListener('click', function(e) {
+    const star = e.target.closest('.star');
+    if (!star) return;
+    // Skip if touch just fired this
+    if (Date.now() - lastTouch < 400) return;
+    rateRecipe(star.dataset.recipe, parseInt(star.dataset.star));
+  });
+})();
 
 function backToChoices() {
   const modal = document.querySelector('.modal');
@@ -1977,6 +2037,120 @@ function surpriseMe() {
 // ─────────────────────────────────────────────
 //  RATINGS & HISTORY
 // ─────────────────────────────────────────────
+// ── FAVOURITES ──
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem('mdd_favs') || '[]'); } catch { return []; }
+}
+function saveFavs(favs) {
+  try { localStorage.setItem('mdd_favs', JSON.stringify(favs)); } catch(e) {}
+}
+function toggleFav(recipeId) {
+  const recipe = RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+  let favs = getFavs();
+  const exists = favs.find(f => f.id === recipeId);
+  if (exists) {
+    favs = favs.filter(f => f.id !== recipeId);
+  } else {
+    favs.push(recipe);
+    showToast('Added to favourites ⭐');
+  burstHearts();
+  }
+  saveFavs(favs);
+  // Update button in recipe view
+  const btn = document.querySelector(`.fav-btn`);
+  if (btn) {
+    btn.textContent = favs.find(f=>f.id===recipeId) ? '★' : '☆';
+    btn.classList.toggle('saved', !!favs.find(f=>f.id===recipeId));
+  }
+  updateFavFloat();
+}
+function updateFavFloat() {
+  const favs = getFavs();
+  const btn = document.getElementById('favFloat');
+  const count = document.getElementById('favCount');
+  if (btn) { btn.style.display = favs.length > 0 ? 'flex' : 'none'; }
+  if (count) count.textContent = favs.length;
+}
+function openFavs() {
+  renderFavContent();
+  document.getElementById('favOverlay').classList.add('active');
+}
+function closeFavs() {
+  document.getElementById('favOverlay').classList.remove('active');
+}
+function renderFavContent() {
+  const favs = getFavs();
+  const container = document.getElementById('favContent');
+  if (!favs.length) {
+    container.innerHTML = '<div class="fav-empty">No favourites yet — tap ☆ on any recipe to save it here.</div>';
+    return;
+  }
+  const weekFull = savedMeals.filter(Boolean).length >= MAX_WEEK;
+  container.innerHTML = favs.map(recipe => {
+    const alreadyInWeek = savedMeals.find(m => m && m.id === recipe.id);
+    return `<div class="fav-item">
+      <div style="flex:1">
+        <div class="fav-item-name">${recipe.name}</div>
+        <div class="fav-item-meta">${recipe.cuisine} · ⏱ ${recipe.time} · 👨‍👩‍👧 Serves 4</div>
+      </div>
+      <div class="fav-item-actions">
+        <button class="fav-view-btn" onclick="closeFavs();viewFavRecipe('${recipe.id}')">View</button>
+        <button class="fav-add-btn" ${alreadyInWeek || weekFull ? 'disabled' : ''} onclick="addFavToWeek('${recipe.id}')">${alreadyInWeek ? '✓ Added' : weekFull ? 'Week full' : '+ My Week'}</button>
+        <button class="fav-remove-btn" onclick="removeFav('${recipe.id}')" title="Remove">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function removeFav(recipeId) {
+  saveFavs(getFavs().filter(f => f.id !== recipeId));
+  renderFavContent();
+  updateFavFloat();
+}
+function addFavToWeek(recipeId) {
+  const recipe = RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+  if (savedMeals.find(m => m && m.id === recipe.id)) return;
+  if (savedMeals.filter(Boolean).length >= MAX_WEEK) return;
+  savedMeals.push(recipe);
+  renderPlannerSlots();
+  updateFavFloat();
+  updateWeekFloat();
+  renderFavContent();
+  showToast('Added to My Week 📅');
+}
+function viewFavRecipe(recipeId) {
+  const recipe = RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+  document.getElementById('resultsModal').classList.add('active');
+  renderResults([recipe], _lastSelectedArr || []);
+}
+function burstHearts() {
+  const emojis = ['❤️','🧡','💛','💚','💖','⭐','✨'];
+  const count = 8;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'heart-burst';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      const angle = (Math.random() - 0.5) * 60;
+      el.style.setProperty('--rot', angle + 'deg');
+      el.style.left = (30 + Math.random() * (window.innerWidth - 60)) + 'px';
+      el.style.top  = (window.innerHeight * 0.4 + Math.random() * window.innerHeight * 0.2) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 950);
+    }, i * 80);
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#2C2C2C;color:white;padding:10px 20px;border-radius:20px;font-size:0.82rem;z-index:9999;pointer-events:none;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.4s'; setTimeout(()=>t.remove(),400); }, 1800);
+}
+
 function getRatings() {
   try { return JSON.parse(localStorage.getItem('mdd_ratings') || '{}'); } catch { return {}; }
 }
