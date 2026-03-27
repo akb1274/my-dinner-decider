@@ -247,6 +247,8 @@
     .custom-input { flex: 1; border: 1.5px dashed #CCC; border-radius: 12px; padding: 10px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; background: white; color: var(--charcoal); outline: none; transition: border-color 0.2s; }
     .custom-input:focus { border-color: var(--terracotta); }
     .custom-input::placeholder { color: #BBB; }
+    .suggestion-item { padding: 10px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--charcoal); cursor: pointer; border-radius: 8px; margin: 2px 4px; }
+    .suggestion-item:hover, .suggestion-active { background: #FDF3EE; color: var(--terracotta); }
     .custom-add-btn { background: var(--charcoal); color: white; border: none; border-radius: 12px; padding: 10px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
     .custom-add-btn:hover { background: var(--terracotta); }
     .custom-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -490,7 +492,7 @@
         <div class="onboard-slide" id="slide-1">
           <span class="onboard-emoji">🥦</span>
           <div class="onboard-title">Pick Your Ingredients</div>
-          <div class="onboard-body">Tap up to <strong>7 ingredients</strong> you have on hand tonight. Mix proteins, veggies, grains, and pantry items. The app finds your best dinner matches from <strong>300+ recipes</strong> — instantly.</div>
+          <div class="onboard-body">Tap up to <strong>7 ingredients</strong> from the grid, or type one in the <strong>"Add an ingredient"</strong> box — it'll suggest matching ingredients as you type so you always pick the right one. Mix proteins, veggies, grains, and pantry items. 400+ recipes matched instantly.</div>
         </div>
 
         <div class="onboard-slide" id="slide-2">
@@ -508,7 +510,7 @@
         <div class="onboard-slide" id="slide-4">
           <span class="onboard-emoji">✨</span>
           <div class="onboard-title">Pick Your Dinner</div>
-          <div class="onboard-body">Hit <strong>Find My Dinners</strong> and you'll see your top 3 matches as choice cards. <strong>Pick the one that sounds good</strong> — it opens the full recipe with ingredients, pantry notes, and step-by-step instructions. You can also <strong>🖨️ Print Recipe</strong> to get a clean step-by-step cooking guide.</div>
+          <div class="onboard-body">Hit <strong>Find My Dinners</strong> and you'll see your top matches. Pick one to open the full recipe. Rate it with the <strong>⭐ stars</strong> and it'll rise to the top next time. Save any recipe to your <strong>Favorites</strong> with ☆, or <strong>🖨️ Print</strong> it for the kitchen.</div>
           <div style="font-size:0.72rem;color:#AAA;margin-top:12px;line-height:1.6;">💡 <em>For PDF saving and printing to work, make sure your browser allows pop-ups for this page.</em></div>
         </div>
 
@@ -561,10 +563,13 @@
       <div class="ingredient-grid" id="grid-pantry"></div>
     </div>
   <div class="custom-section">
-    <div class="custom-input-row">
+    <div class="custom-input-row" style="position:relative;">
       <input class="custom-input" id="customInput" placeholder="+ Add an ingredient (e.g. cucumber)" maxlength="30"
-        onkeydown="if(event.key==='Enter')addCustomIngredient()">
+        autocomplete="off"
+        oninput="handleCustomInput(this)"
+        onkeydown="handleCustomKeydown(event)">
       <button class="custom-add-btn" onclick="addCustomIngredient()">Add</button>
+      <div id="customSuggestions" style="display:none;position:absolute;top:100%;left:0;right:48px;background:white;border:1.5px solid #E0D8CF;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:200;max-height:200px;overflow-y:auto;margin-top:4px;"></div>
     </div>
     <div class="custom-pills" id="customPills"></div>
   </div>
@@ -607,7 +612,7 @@
   <div class="fav-overlay" id="favOverlay">
     <div class="fav-sheet">
       <button onclick="closeFavs()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#888">✕</button>
-      <div class="fav-title">⭐ Favourites</div>
+      <div class="fav-title">⭐ Favorites</div>
       <div style="font-size:0.74rem;color:var(--charcoal-light);margin-bottom:16px">Your saved recipes — add to this week with one tap.</div>
       <div id="favContent"></div>
     </div>
@@ -1615,6 +1620,85 @@ function toggleCTA() {
 // ── Custom ingredients ──
 let customIngredients = []; // array of lowercase strings
 
+// ── INGREDIENT LOOKUP for autocomplete ──
+const INGREDIENT_LOOKUP = [
+  'apple','apricot','artichoke','asparagus','aubergine','avocado',
+  'bacon','banana','basil','bay leaf','bean sprouts','beetroot','black beans','bok choy','bread','broccoli','brussels sprouts','butter','butternut squash',
+  'cabbage','cannellini beans','capers','carrots','cauliflower','celery','cheddar','chickpeas','chilli','chives','cilantro','coconut milk','corn','courgette','cream','cream cheese','cucumber',
+  'dill',
+  'edamame','eggplant',
+  'fennel','feta','fish sauce','flaxseed',
+  'ginger','greek yogurt','green beans','green onion',
+  'ham','heavy cream',
+  'jalapeño',
+  'kale','kidney beans',
+  'leek','lemon','lentils','lettuce','lime',
+  'mango','mint','miso','mozzarella','mushrooms',
+  'noodles',
+  'oats','olives','orange',
+  'parsley','parsnip','peanut butter','peas','pineapple','polenta','pomegranate','potatoes','pumpkin',
+  'quinoa',
+  'radish','raisins','raspberries','red cabbage','ricotta','rocket',
+  'scallions','sesame seeds','snow peas','sour cream','spring onion','strawberries','sun-dried tomatoes','sweet potato','swiss chard',
+  'tahini','tamarind','tempeh','tomato paste','tortillas','turnip',
+  'walnuts','watercress','watermelon',
+  'yellow squash','yogurt','zucchini'
+];
+
+let suggestionIndex = -1;
+
+function handleCustomInput(input) {
+  const val = input.value.trim().toLowerCase();
+  const box = document.getElementById('customSuggestions');
+  suggestionIndex = -1;
+  if (!val || val.length < 2) { box.style.display = 'none'; return; }
+  const matches = INGREDIENT_LOOKUP.filter(i => i.startsWith(val) && !customIngredients.includes(i)).slice(0, 7);
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.innerHTML = matches.map((m, idx) =>
+    `<div class="suggestion-item" data-idx="${idx}" onmousedown="selectSuggestion('${m}')">${m.charAt(0).toUpperCase() + m.slice(1)}</div>`
+  ).join('');
+  box.style.display = 'block';
+}
+
+function handleCustomKeydown(e) {
+  const box = document.getElementById('customSuggestions');
+  const items = box.querySelectorAll('.suggestion-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    suggestionIndex = Math.min(suggestionIndex + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('suggestion-active', i === suggestionIndex));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    suggestionIndex = Math.max(suggestionIndex - 1, -1);
+    items.forEach((el, i) => el.classList.toggle('suggestion-active', i === suggestionIndex));
+  } else if (e.key === 'Enter') {
+    if (suggestionIndex >= 0 && items[suggestionIndex]) {
+      e.preventDefault();
+      selectSuggestion(items[suggestionIndex].dataset.idx !== undefined ? INGREDIENT_LOOKUP.filter(i => i.startsWith(document.getElementById('customInput').value.trim().toLowerCase()))[suggestionIndex] : '');
+    } else {
+      addCustomIngredient();
+    }
+  } else if (e.key === 'Escape') {
+    box.style.display = 'none';
+  }
+}
+
+function selectSuggestion(val) {
+  const input = document.getElementById('customInput');
+  input.value = val.charAt(0).toUpperCase() + val.slice(1);
+  document.getElementById('customSuggestions').style.display = 'none';
+  suggestionIndex = -1;
+  addCustomIngredient();
+}
+
+// Close suggestions when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.custom-input-row')) {
+    const box = document.getElementById('customSuggestions');
+    if (box) box.style.display = 'none';
+  }
+});
+
 function addCustomIngredient() {
   const input = document.getElementById('customInput');
   const val = input.value.trim().toLowerCase();
@@ -1760,7 +1844,7 @@ function renderResults(results, selectedArr, strictMode = false) {
             <span class="recipe-time">⏱ ${recipe.time}</span>
             <span class="recipe-cuisine">${CUISINE_EMOJI[recipe.cuisine] || ''} ${recipe.cuisine}</span>
             <span class="match-score" style="margin:0;">✅ ${matchedCount} ingredient${matchedCount !== 1 ? 's' : ''} matched</span>
-            <button class="fav-btn ${getFavs().find(f=>f.id===recipe.id)?'saved':''}" onclick="toggleFav('${recipe.id}')" title="Save to favourites">${getFavs().find(f=>f.id===recipe.id)?'★':'☆'}</button>
+            <button class="fav-btn ${getFavs().find(f=>f.id===recipe.id)?'saved':''}" onclick="toggleFav('${recipe.id}')" title="Save to favorites">${getFavs().find(f=>f.id===recipe.id)?'★':'☆'}</button>
           </div>
         </div>
         <span class="choice-card-arrow">›</span>
@@ -2053,7 +2137,7 @@ function toggleFav(recipeId) {
     favs = favs.filter(f => f.id !== recipeId);
   } else {
     favs.push(recipe);
-    showToast('Added to favourites ⭐');
+    showToast('Added to favorites ⭐');
   burstHearts();
   }
   saveFavs(favs);
@@ -2083,7 +2167,7 @@ function renderFavContent() {
   const favs = getFavs();
   const container = document.getElementById('favContent');
   if (!favs.length) {
-    container.innerHTML = '<div class="fav-empty">No favourites yet — tap ☆ on any recipe to save it here.</div>';
+    container.innerHTML = '<div class="fav-empty">No favorites yet — tap ☆ on any recipe to save it here.</div>';
     return;
   }
   const weekFull = savedMeals.filter(Boolean).length >= MAX_WEEK;
