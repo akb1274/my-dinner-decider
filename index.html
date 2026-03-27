@@ -110,17 +110,17 @@
     @keyframes slideDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
 
     /* ── HEARTS ANIMATION ── */
-    .heart-burst { position: fixed; pointer-events: none; z-index: 9999; font-size: 1.4rem; animation: heartFloat 0.28s ease-out forwards; }
+    .heart-burst { position: fixed; pointer-events: none; z-index: 9999; font-size: 1.4rem; animation: heartFloat 0.9s ease-out forwards; }
+    @keyframes heartFloat {
+      0%   { opacity: 1; transform: translateY(0) scale(0.6) rotate(var(--rot, 0deg)); }
+      40%  { opacity: 1; transform: translateY(-60px) scale(1.2) rotate(var(--rot, 0deg)); }
+      100% { opacity: 0; transform: translateY(-120px) scale(0.8) rotate(var(--rot, 0deg)); }
+    }
     .star-burst { position: fixed; pointer-events: none; z-index: 9999; animation: starFloat 0.6s ease-out forwards; }
     @keyframes starFloat {
       0%   { transform: translateY(0) rotate(0deg) scale(0.4); opacity: 1; }
       60%  { transform: translateY(-50px) rotate(180deg) scale(1.1); opacity: 0.9; }
       100% { transform: translateY(-80px) rotate(360deg) scale(0.7); opacity: 0; }
-    }
-    @keyframes heartFloat {
-      0%   { transform: translateY(0) scale(0.5); opacity: 1; }
-      60%  { transform: translateY(-35px) scale(1.05); opacity: 0.9; }
-      100% { transform: translateY(-55px) scale(0.8); opacity: 0; }
     }
     .modal-handle { width: 36px; height: 4px; background: #D8D2C8; border-radius: 2px; margin: 10px auto 16px; }
     .close-btn { position: absolute; top: 14px; right: 14px; background: var(--cream-dark); border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--charcoal-light); transition: background 0.18s; }
@@ -276,12 +276,6 @@
     .fav-remove-btn { background: none; border: none; color: #CCC; font-size: 1rem; cursor: pointer; padding: 4px; }
 
     /* ── HEART BURST ── */
-    .heart-burst { position: fixed; pointer-events: none; z-index: 9999; font-size: 1.4rem; animation: heartFloat 0.9s ease-out forwards; }
-    @keyframes heartFloat {
-      0%   { opacity: 1; transform: translateY(0) scale(0.6) rotate(var(--rot)); }
-      40%  { opacity: 1; transform: translateY(-60px) scale(1.2) rotate(var(--rot)); }
-      100% { opacity: 0; transform: translateY(-120px) scale(0.8) rotate(var(--rot)); }
-    }
     /* ── PRINT BUTTON ── */
     .print-btn { width: 100%; margin-top: 8px; padding: 9px; border: 1.5px solid #DDD; background: transparent; color: var(--charcoal-light); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 400; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .print-btn:hover { border-color: var(--charcoal); color: var(--charcoal); background: var(--cream-dark); }
@@ -2112,12 +2106,14 @@ function surpriseMe() {
       const heart = document.createElement('div');
       heart.className = 'heart-burst';
       heart.textContent = '❤️';
+      const angle = (Math.random() - 0.5) * 60;
+      heart.style.setProperty('--rot', angle + 'deg');
       heart.style.left = (cx + (Math.random() - 0.5) * 120) + 'px';
       heart.style.top  = (cy + (Math.random() - 0.5) * 40) + 'px';
       heart.style.animationDelay = (Math.random() * 0.25) + 's';
       heart.style.fontSize = (1 + Math.random() * 0.8) + 'rem';
       document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 350);
+      setTimeout(() => heart.remove(), 1200);
     }
   }
   // Clear current selection
@@ -2251,11 +2247,22 @@ function burstHearts() {
 }
 
 function showToast(msg) {
+  // Remove any existing toast first
+  document.querySelectorAll('.app-toast').forEach(el => el.remove());
   const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#2C2C2C;color:white;padding:10px 20px;border-radius:20px;font-size:0.82rem;z-index:9999;pointer-events:none;';
+  t.className = 'app-toast';
+  t.style.cssText = 'position:fixed;top:22%;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--charcoal);color:white;padding:11px 22px;border-radius:20px;font-size:0.84rem;font-family:"DM Sans",sans-serif;font-weight:500;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.2s,transform 0.2s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
   t.textContent = msg;
   document.body.appendChild(t);
-  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.4s'; setTimeout(()=>t.remove(),400); }, 1800);
+  requestAnimationFrame(() => {
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(-8px)';
+    setTimeout(() => t.remove(), 300);
+  }, 1800);
 }
 
 function getRatings() {
