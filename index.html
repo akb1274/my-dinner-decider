@@ -340,7 +340,7 @@
       bottom: 10px; right: 10px;
       display: flex; gap: 6px;
     }
-    .winning-photo-save, .winning-photo-share {
+    .winning-photo-save, .winning-photo-share, .winning-photo-delete {
       background: rgba(0,0,0,0.55);
       color: white;
       border: none;
@@ -367,6 +367,18 @@
       position: absolute;
       bottom: 8px; right: 8px;
       background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .meal-photo-delete {
+      position: absolute;
+      bottom: 8px; left: 8px;
+      background: rgba(180,40,40,0.65);
       color: white;
       border: none;
       border-radius: 16px;
@@ -3512,6 +3524,7 @@ function renderWinningGrid() {
       <div class="winning-photo-actions">
         <button class="winning-photo-save" onclick="saveWinningPhoto(${i})">⬇ Save</button>
         <button class="winning-photo-share" onclick="shareWinningPhoto(${i})">💬 Brag</button>
+        <button class="winning-photo-delete" onclick="deleteWinningPhoto(${i})">✕ Remove</button>
       </div>
     </div>
   `).join('');
@@ -3596,11 +3609,24 @@ function renderMealPhotoSection(container, recipeId) {
       <div class="meal-photo-wrap">
         <img src="${photo}" alt="Your photo of this meal">
         <button class="meal-photo-replace" onclick="triggerMealPhotoCamera('${recipeId}')">📷 Replace</button>
+        <button class="meal-photo-delete" onclick="deleteMealPhoto('${recipeId}')">✕ Remove</button>
       </div>`;
   } else {
     container.innerHTML = `
       <button class="meal-photo-add" onclick="triggerMealPhotoCamera('${recipeId}')">📷 Add a photo of this meal</button>`;
   }
+}
+function deleteWinningPhoto(idx) {
+  const photos = getWinningPhotos();
+  photos.splice(idx, 1);
+  saveWinningPhotos(photos);
+  renderWinningGrid();
+}
+
+function deleteMealPhoto(recipeId) {
+  try { localStorage.removeItem('meal_photo_' + recipeId); } catch(e) {}
+  const wrap = document.getElementById('mealPhotoWrap');
+  if (wrap) renderMealPhotoSection(wrap, recipeId);
 }
 
 </script>
