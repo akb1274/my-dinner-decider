@@ -192,6 +192,218 @@
     .strict-inline { display: flex; align-items: center; gap: 5px; margin-left: 6px; padding-left: 10px; border-left: 1px solid rgba(44,44,44,0.12); flex-shrink: 0; }
     .strict-inline-label { font-size: 0.68rem; color: var(--charcoal-light); white-space: nowrap; }
 
+    /* ── #WINNING FEATURE ── */
+    .winning-fab {
+      position: fixed;
+      bottom: 112px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f5c842, #e8a020);
+      border: none;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+      z-index: 1200;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .winning-fab:active { transform: scale(0.92); box-shadow: 0 1px 5px rgba(0,0,0,0.18); }
+
+    .winning-modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 1300;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .winning-modal-backdrop.active { display: flex; }
+
+    .winning-modal {
+      background: var(--cream);
+      border-radius: 20px 20px 0 0;
+      padding: 20px 18px 32px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .winning-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .winning-modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--charcoal);
+    }
+    .winning-close-btn {
+      background: none; border: none;
+      font-size: 1.3rem; cursor: pointer;
+      color: var(--charcoal-light); padding: 4px;
+    }
+    .winning-photo-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .winning-photo-item {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .winning-photo-item img {
+      width: 100%;
+      display: block;
+      max-height: 240px;
+      object-fit: cover;
+    }
+    .winning-photo-actions {
+      position: absolute;
+      bottom: 10px; right: 10px;
+      display: flex;
+      gap: 6px;
+    }
+    .winning-photo-save,
+    .winning-photo-share {
+      background: rgba(0,0,0,0.55);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .winning-recipe-photo {
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .winning-photo-num {
+      position: absolute;
+      top: 8px; left: 10px;
+      background: rgba(0,0,0,0.45);
+      color: white;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      backdrop-filter: blur(4px);
+    }
+    .winning-empty {
+      text-align: center;
+      padding: 30px 0 20px;
+      color: var(--charcoal-light);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    .winning-empty-icon { font-size: 2.4rem; margin-bottom: 8px; }
+    .winning-add-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: 2px dashed #e8a020;
+      background: rgba(248,196,66,0.08);
+      color: #b07a10;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .winning-add-btn:active { background: rgba(248,196,66,0.18); }
+    .winning-hint {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #BBB;
+      margin-top: 10px;
+    }
+    .winning-photo-actions {
+      position: absolute;
+      bottom: 10px; right: 10px;
+      display: flex; gap: 6px;
+    }
+    .winning-photo-save, .winning-photo-share {
+      background: rgba(0,0,0,0.55);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .winning-photo-delete {
+      background: rgba(180,40,40,0.65);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── RECIPE CARD MEAL PHOTO ── */
+    .meal-photo-wrap {
+      margin: 0 0 12px 0;
+      position: relative;
+    }
+    .meal-photo-wrap img {
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 10px;
+      display: block;
+    }
+    .meal-photo-replace {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .meal-photo-delete {
+      position: absolute;
+      bottom: 8px; left: 8px;
+      background: rgba(180,40,40,0.65);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .meal-photo-add {
+      display: block;
+      width: 100%;
+      padding: 9px;
+      border-radius: 10px;
+      border: 1.5px dashed #CCC;
+      background: transparent;
+      color: #AAA;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 12px;
+    }
     /* ── START FRESH FLOAT BUTTON ── */
     .smoke-puff { position: fixed; pointer-events: none; z-index: 9999; border-radius: 50%; background: radial-gradient(circle, rgba(180,170,160,0.55), rgba(180,170,160,0) 70%); animation: smokePuff 0.75s ease-out forwards; }
     @keyframes smokePuff {
@@ -224,7 +436,7 @@
 
 
     /* ── LICENSE GATE ── */
-    .license-overlay { position: fixed; inset: 0; background: var(--charcoal); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .license-overlay { position: fixed; inset: 0; background: var(--charcoal); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px; }
     .license-sheet { background: var(--cream); border-radius: 24px; width: 100%; max-width: 420px; padding: 40px 32px 36px; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
     .license-emoji { font-size: 3rem; display: block; margin-bottom: 16px; }
     .license-title { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; line-height: 1.1; margin-bottom: 8px; }
@@ -562,6 +774,11 @@
 <div class="onboard-body">Tap the <strong>🧒 Kids Dinner</strong> button — no ingredient selection needed. It instantly picks a <strong>15-minute, kid-approved meal</strong> with simple familiar flavors that little ones will actually eat. Perfect for those nights when your mental energy is completely gone.</div>
 </div>
 <div class="onboard-slide" id="slide-7">
+<span class="onboard-emoji">🏆</span>
+<div class="onboard-title">Brag a Little. You Earned It.</div>
+<div class="onboard-body">Cooked something that looked as good as it tasted? Tap the <strong>🏆 trophy button</strong> (bottom right corner) to open <strong>#Winning</strong> — your personal dinner hall of fame.<br/><br/>Take a photo, store it on your device, and save it whenever you want. Up to 3 shots at a time. No posting, no accounts, no nonsense — just pure personal pride.</div>
+</div>
+<div class="onboard-slide" id="slide-8">
 <span class="onboard-emoji">👋</span>
 <div class="onboard-title">Hey, I'm Adam W.</div>
 <div class="onboard-body">I built this because my family needed it. I'm a working dad with two busy kiddos and a wife — we're both juggling careers and never seemed to have the mental space to figure out dinner at the end of a long day.<br/><br/>I hope this makes dinner a little less stressful — and a little more delicious — for your family too.<br/><br/><em style="color:var(--terracotta);font-family:'Cormorant Garamond',serif;font-size:1rem;">Now let's decide what's for dinner. 🍽️</em></div>
@@ -2061,6 +2278,7 @@ function renderCookingView(idx, isKids) {
   const html = `
     <button class="back-btn" onclick="leaveCookingView()">← Back to results</button>
     <div class="recipe-card" style="margin-bottom:0;">
+      <div id="mealPhotoWrap"></div>
       <div class="recipe-header">
         <div class="recipe-name">${recipe.name}${seasonBadge}</div>
         <div class="recipe-meta">
@@ -2096,6 +2314,7 @@ function renderCookingView(idx, isKids) {
       </div>
       <button class="print-btn" onclick="printRecipe(${JSON.stringify(recipe).replace(/"/g,'&quot;')})">🖨️ Print Recipe</button>
       <button class="partner-btn" onclick="sendToPartner(${JSON.stringify(recipe).replace(/"/g,'&quot;')})">💬 Send to my partner — "Can you grab these?"</button>
+      <button class="partner-btn" style="background:linear-gradient(135deg,#f5c842,#e8a020);color:#5a3a00;border:none;margin-top:6px;" onclick="closeWinning();openWinning()">🏆 Add a #Winning photo?</button>
     </div>`;
 
   // Record that this recipe was viewed/cooked
@@ -2111,6 +2330,10 @@ function renderCookingView(idx, isKids) {
   const modal = document.querySelector('.modal');
   modal.scrollTop = 0;
   document.getElementById('modalContent').innerHTML = html;
+
+  // Populate per-recipe meal photo (separate from #Winning)
+  const mealWrap = document.getElementById('mealPhotoWrap');
+  if (mealWrap) renderMealPhotoSection(mealWrap, recipe.id);
 }
 
 function rateRecipe(recipeId, stars) {
@@ -2983,6 +3206,8 @@ function initLicense() {
   try { unlocked = localStorage.getItem('mdd_licensed') === '1'; } catch(e) {}
   if (unlocked) {
     document.getElementById('licenseOverlay').style.display = 'none';
+    const fab = document.querySelector('.winning-fab');
+    if (fab) fab.style.display = 'flex';
     return;
   }
   const input = document.getElementById('licenseInput');
@@ -3013,6 +3238,9 @@ function submitLicense() {
       overlay.style.opacity = '0';
       setTimeout(() => {
         overlay.style.display = 'none';
+        // Show the #Winning FAB now that app is unlocked
+        const fab = document.querySelector('.winning-fab');
+        if (fab) fab.style.display = 'flex';
         // Show toast if it exists
         try {
           const toast = document.getElementById('thanksToast');
@@ -3191,13 +3419,224 @@ function closeRatePrompt() {
 }
 
 // ─────────────────────────────────────────────
-//  FEATURE: STEP CHECKLIST TOGGLE
+//  FEATURE: #WINNING PHOTO GALLERY
 // ─────────────────────────────────────────────
-function toggleStep(el) {
-  el.classList.toggle('step-done');
+const WINNING_KEY = 'winning_photos';
+const WINNING_MAX = 3;
+
+function getWinningPhotos() {
+  try { return JSON.parse(localStorage.getItem(WINNING_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+function saveWinningPhotos(photos) {
+  localStorage.setItem(WINNING_KEY, JSON.stringify(photos));
+}
+
+function openWinning() {
+  renderWinningGrid();
+  renderWinningFirstTime();
+  document.getElementById('winningBackdrop').classList.add('active');
+}
+
+function renderWinningFirstTime() {
+  const SEEN_KEY = 'winning_intro_seen';
+  const note = document.getElementById('winningFirstTimeNote');
+  if (!note) return;
+  if (localStorage.getItem(SEEN_KEY)) { note.innerHTML = ''; return; }
+  localStorage.setItem(SEEN_KEY, '1');
+  note.innerHTML = `
+    <div style="background:rgba(245,200,66,0.12);border:1.5px solid #e8c040;border-radius:12px;padding:13px 14px;margin-bottom:14px;font-size:0.82rem;color:var(--charcoal);line-height:1.6;">
+      <strong>👋 First time here?</strong><br>
+      This is your private dinner hall of fame. After you cook something worth bragging about, tap <strong>📸 Add a photo</strong> below — it'll open your camera. Your last 3 dinners are stored right here on your device. Tap <strong>⬇ Save to device</strong> on any photo to keep it, share it, or show it off however you like. Nobody sees this but you.
+    </div>`;
+}
+
+function closeWinning() {
+  document.getElementById('winningBackdrop').classList.remove('active');
+}
+
+function closeWinningOnBackdrop(e) {
+  if (e.target === document.getElementById('winningBackdrop')) closeWinning();
+}
+
+function triggerWinningCamera() {
+  document.getElementById('winningCameraInput').click();
+}
+
+function handleWinningPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      // Resize to max 800px wide to keep storage lean
+      const MAX_W = 800;
+      const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const compressed = canvas.toDataURL('image/jpeg', 0.72);
+
+      const photos = getWinningPhotos();
+      if (photos.length >= WINNING_MAX) photos.shift(); // circular buffer
+      photos.push(compressed);
+      saveWinningPhotos(photos);
+      renderWinningGrid();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function renderWinningGrid() {
+  const photos = getWinningPhotos();
+  const grid = document.getElementById('winningPhotoGrid');
+  if (!photos.length) {
+    grid.innerHTML = `
+      <div class="winning-empty">
+        <div class="winning-empty-icon">📷</div>
+        No photos yet — cook something great and brag about it.
+      </div>`;
+    return;
+  }
+  grid.innerHTML = photos.map((src, i) => `
+    <div class="winning-photo-item">
+      <span class="winning-photo-num">📸 ${i + 1} of ${photos.length}</span>
+      <img src="${src}" alt="Winning dinner photo ${i+1}">
+      <div class="winning-photo-actions">
+        <button class="winning-photo-save" onclick="saveWinningPhoto(${i})">⬇ Save</button>
+        <button class="winning-photo-share" onclick="shareWinningPhoto(${i})">💬 Brag</button>
+        <button class="winning-photo-delete" onclick="deleteWinningPhoto(${i})">✕ Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function shareWinningPhoto(idx) {
+  const photos = getWinningPhotos();
+  if (!photos[idx]) return;
+  const msg = 'Check it: all I do is win... 🏆🍽️';
+  if (navigator.share) {
+    try {
+      const res  = await fetch(photos[idx]);
+      const blob = await res.blob();
+      const file = new File([blob], 'winning-dinner.jpg', { type: 'image/jpeg' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: msg });
+        return;
+      }
+    } catch(err) { /* fall through */ }
+  }
+  // Fallback: open Messages with pre-filled text (user attaches photo manually)
+  window.open('sms:?body=' + encodeURIComponent(msg), '_blank');
+}
+
+function saveWinningPhoto(idx) {
+  const photos = getWinningPhotos();
+  if (!photos[idx]) return;
+  const a = document.createElement('a');
+  a.href = photos[idx];
+  a.download = `winning-dinner-${idx + 1}.jpg`;
+  a.click();
+}
+
+
+function deleteWinningPhoto(idx) {
+  const photos = getWinningPhotos();
+  photos.splice(idx, 1);
+  saveWinningPhotos(photos);
+  renderWinningGrid();
+}
+
+// ─────────────────────────────────────────────
+//  FEATURE: PER-RECIPE MEAL PHOTO
+// ─────────────────────────────────────────────
+let _mealPhotoRecipeId = null;
+
+function getMealPhoto(recipeId) {
+  try { return localStorage.getItem('meal_photo_' + recipeId) || null; }
+  catch(e) { return null; }
+}
+
+function saveMealPhoto(recipeId, dataUrl) {
+  try { localStorage.setItem('meal_photo_' + recipeId, dataUrl); }
+  catch(e) { alert('Not enough storage to save photo.'); }
+}
+
+function triggerMealPhotoCamera(recipeId) {
+  _mealPhotoRecipeId = recipeId;
+  document.getElementById('mealPhotoCameraInput').click();
+}
+
+function handleMealPhoto(e) {
+  const file = e.target.files[0];
+  if (!file || !_mealPhotoRecipeId) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      const MAX_W = 800;
+      const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      saveMealPhoto(_mealPhotoRecipeId, canvas.toDataURL('image/jpeg', 0.68));
+      const wrap = document.getElementById('mealPhotoWrap');
+      if (wrap) renderMealPhotoSection(wrap, _mealPhotoRecipeId);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function renderMealPhotoSection(container, recipeId) {
+  const photo = getMealPhoto(recipeId);
+  if (photo) {
+    container.innerHTML = `
+      <div class="meal-photo-wrap">
+        <img src="${photo}" alt="Your photo of this meal">
+        <button class="meal-photo-replace" onclick="triggerMealPhotoCamera('${recipeId}')">📷 Replace</button>
+        <button class="meal-photo-delete" onclick="deleteMealPhoto('${recipeId}')">✕ Remove</button>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <button class="meal-photo-add" onclick="triggerMealPhotoCamera('${recipeId}')">📷 Add a photo of this meal</button>`;
+  }
+}
+function deleteMealPhoto(recipeId) {
+  try { localStorage.removeItem('meal_photo_' + recipeId); } catch(e) {}
+  const wrap = document.getElementById('mealPhotoWrap');
+  if (wrap) renderMealPhotoSection(wrap, recipeId);
 }
 
 </script>
+
+<!-- #WINNING FAB -->
+<button class="winning-fab" onclick="openWinning()" title="#Winning — your dinner photos">🏆</button>
+
+<!-- #WINNING MODAL -->
+<div class="winning-modal-backdrop" id="winningBackdrop" onclick="closeWinningOnBackdrop(event)">
+  <div class="winning-modal">
+    <div class="winning-modal-header">
+      <div class="winning-modal-title">🏆 #Winning</div>
+      <button class="winning-close-btn" onclick="closeWinning()">✕</button>
+    </div>
+    <div style="text-align:center;font-size:0.8rem;color:#b07a10;font-style:italic;margin:-6px 0 14px;font-family:'Cormorant Garamond',serif;font-size:1rem;">All I do is win... and here's the proof.</div>
+    <div id="winningFirstTimeNote"></div>
+    <div class="winning-photo-grid" id="winningPhotoGrid"></div>
+    <button class="winning-add-btn" onclick="triggerWinningCamera()">📸 Add a photo</button>
+    <div class="winning-hint">Saves up to 3 photos · stored only on this device</div>
+    <input type="file" accept="image/*" capture="environment" id="winningCameraInput" style="display:none" onchange="handleWinningPhoto(event)">
+    <input type="file" accept="image/*" capture="environment" id="mealPhotoCameraInput" style="display:none" onchange="handleMealPhoto(event)">
+  </div>
+</div>
+
 <div class="thanks-toast" id="thanksToast">
 <span class="toast-emoji">🍽️</span>
 <div class="toast-title">Thanks for your purchase!</div>
