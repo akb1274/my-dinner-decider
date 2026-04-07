@@ -475,6 +475,9 @@
     .fav-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 4px 6px; line-height: 1; transition: transform 0.2s; color: #CCC; }
     .fav-btn.saved { color: #E8A020; }
     .fav-btn:active { transform: scale(1.3); }
+    .cart-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px 6px; line-height: 1; transition: transform 0.2s; color: #CCC; }
+    .cart-btn.added { color: #4CAF82; }
+    .cart-btn:active { transform: scale(1.3); }
     .fav-overlay { position: fixed; inset: 0; background: rgba(30,25,20,0.75); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
     .fav-overlay.active { display: flex; }
     .fav-sheet { position: relative; background: var(--cream); border-radius: 22px 22px 0 0; width: 100%; max-width: 600px; max-height: 88vh; overflow-y: auto; padding: 10px 18px 36px; animation: slideUp 0.38s cubic-bezier(0.16,1,0.3,1); }
@@ -917,7 +920,7 @@
 <button id="groupByMealBtn" onclick="setShopView('meal')" style="flex:1;padding:7px;border-radius:20px;border:1.5px solid #DDD;background:transparent;color:var(--charcoal-light);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:500;cursor:pointer;transition:all 0.18s;">By Meal</button>
 </div>
 <div id="shoplistContent"></div>
-<button class="copy-btn" id="copyBtn" onclick="copyList()">📋 Copy List to Clipboard</button>
+<button class="copy-btn" id="copyBtn" onclick="copyList()">📋 Copy / Share List</button>
 <div class="affiliate-section" style="margin-top:14px;">
 <div class="affiliate-label">Ready to order? Get everything delivered:</div>
 <div class="affiliate-buttons" id="shoplistAffiliateLinks"></div>
@@ -2174,6 +2177,7 @@ function renderResults(results, selectedArr, strictMode = false) {
             <span class="recipe-cuisine">${CUISINE_EMOJI[recipe.cuisine] || ''} ${recipe.cuisine}</span>
             <span class="match-score" style="margin:0;">✅ ${matchedCount} ingredient${matchedCount !== 1 ? 's' : ''} matched</span>
             <button class="fav-btn ${getFavs().find(f=>f.id===recipe.id)?'saved':''}" onclick="toggleFav('${recipe.id}')" title="Save to favorites">${getFavs().find(f=>f.id===recipe.id)?'★':'☆'}</button>
+            <button class="cart-btn ${savedMeals.find(m=>m&&m.id===recipe.id)?'added':''}" onclick="quickAddToShop(event,'${recipe.id}')" title="Add to shopping list">🛒</button>
           </div>
         </div>
         <span class="choice-card-arrow">›</span>
@@ -2917,6 +2921,36 @@ function toggleSaveMeal(recipe) {
   }
 }
 
+function quickAddToShop(e, recipeId) {
+  e.stopPropagation();
+  const recipe = _lastResults.find(r => r.id === recipeId);
+  if (!recipe) return;
+  const btn = e.currentTarget;
+  const alreadyAdded = savedMeals.find(m => m && m.id === recipe.id);
+
+  if (alreadyAdded) {
+    // Remove it
+    savedMeals = savedMeals.filter(m => m.id !== recipe.id);
+    updateWeekFloat();
+    btn.textContent = '🛒';
+    btn.classList.remove('added');
+    btn.style.transform = 'scale(1.4)';
+    setTimeout(() => { btn.style.transform = ''; }, 250);
+    showToast('Removed from shopping list');
+    return;
+  }
+  if (savedMeals.length >= MAX_WEEK) {
+    showToast('Week is full — remove a meal first'); return;
+  }
+  savedMeals.push(recipe);
+  updateWeekFloat();
+  btn.textContent = '✅';
+  btn.classList.add('added');
+  btn.style.transform = 'scale(1.4)';
+  setTimeout(() => { btn.style.transform = ''; }, 250);
+  showToast('Added to shopping list 🛒');
+}
+
 function saveMeal(recipe) {
   if (savedMeals.find(m => m && m.id === recipe.id)) return;
   if (savedMeals.length >= MAX_WEEK) return;
@@ -3331,12 +3365,19 @@ function copyList() {
       lines.push(`• ${item.textContent}`);
     });
   });
-  navigator.clipboard.writeText(lines.join('\n')).then(() => {
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '✅ Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋 Copy List to Clipboard'; btn.classList.remove('copied'); }, 2500);
-  });
+  const text = lines.join('\n');
+  const btn = document.getElementById('copyBtn');
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => {
+      navigator.clipboard.writeText(text);
+    });
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✅ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy / Share List'; btn.classList.remove('copied'); }, 2500);
+    });
+  }
 }
 
 // ─────────────────────────────────────────────
