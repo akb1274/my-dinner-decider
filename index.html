@@ -174,8 +174,8 @@
     .star-row { display: flex; align-items: center; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--cream-dark); }
     .star-label { font-size: 0.68rem; color: var(--charcoal-light); }
     .stars { display: flex; gap: 2px; }
-    .star { font-size: 1.1rem; cursor: pointer; transition: transform 0.15s, color 0.15s; line-height: 1; color: #CCC; }
-    .star:hover, .star.lit { color: #F9A825; transform: scale(1.2); }
+    .star { font-size: 1.1rem; cursor: pointer; transition: transform 0.15s; line-height: 1; filter: grayscale(1) opacity(0.35); }
+    .star:hover, .star.lit { filter: none; transform: scale(1.2); }
     .star.lit { transform: scale(1); }
     .last-cooked { font-size: 0.65rem; color: var(--charcoal-light); margin-left: auto; font-style: italic; }
 
@@ -565,6 +565,27 @@
     .kids-btn:active { transform: scale(0.99); }
     .surprise-btn { width: 100%; max-width: 600px; display: block; margin: 8px auto 0; background: transparent; color: var(--charcoal-light); border: 1.5px dashed #CCC; border-radius: 14px; padding: 10px 24px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 400; cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em; }
     .surprise-btn:hover { border-color: var(--terracotta-light); color: var(--terracotta); background: #FDF3EE; }
+    .grocery-btn { width: 100%; max-width: 600px; display: block; margin: 8px auto 0; background: linear-gradient(135deg, #4CAF82, #2E7D5E); color: white; border: none; border-radius: 14px; padding: 13px 24px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(46,125,94,0.3); letter-spacing: 0.01em; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .grocery-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(46,125,94,0.45); filter: brightness(1.05); }
+    .grocery-btn:active { transform: scale(0.99); }
+    /* Grocery Mode Modal */
+    .grocery-overlay { position: fixed; inset: 0; background: rgba(30,25,20,0.65); z-index: 260; display: none; align-items: flex-end; justify-content: center; }
+    .grocery-overlay.active { display: flex; }
+    .grocery-sheet { background: var(--cream); border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 600px; box-shadow: 0 -8px 40px rgba(0,0,0,0.18); }
+    .grocery-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; color: var(--charcoal); margin-bottom: 4px; }
+    .grocery-sub { font-size: 0.8rem; color: var(--charcoal-light); margin-bottom: 20px; line-height: 1.5; }
+    .grocery-section-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--charcoal-light); margin-bottom: 8px; }
+    .meal-count-row { display: flex; gap: 8px; margin-bottom: 20px; }
+    .meal-count-btn { flex: 1; padding: 10px 4px; border-radius: 12px; border: 1.5px solid #DDD; background: white; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; color: var(--charcoal-light); cursor: pointer; transition: all 0.18s; }
+    .meal-count-btn.active { border-color: #4CAF82; background: #4CAF82; color: white; }
+    .grocery-filter-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+    .grocery-filter-chip { padding: 6px 13px; border-radius: 20px; border: 1.5px solid #DDD; background: white; font-family: 'DM Sans', sans-serif; font-size: 0.74rem; font-weight: 500; color: var(--charcoal-light); cursor: pointer; transition: all 0.18s; }
+    .grocery-filter-chip.active { border-color: #4CAF82; background: #EBF7F1; color: #2E7D5E; }
+    .grocery-time-chip { padding: 6px 13px; border-radius: 20px; border: 1.5px solid #DDD; background: white; font-family: 'DM Sans', sans-serif; font-size: 0.74rem; font-weight: 500; color: var(--charcoal-light); cursor: pointer; transition: all 0.18s; }
+    .grocery-time-chip.active { border-color: #4CAF82; background: #EBF7F1; color: #2E7D5E; }
+    .grocery-go-btn { width: 100%; margin-top: 20px; padding: 15px; border-radius: 14px; border: none; background: linear-gradient(135deg, #4CAF82, #2E7D5E); color: white; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(46,125,94,0.3); }
+    .grocery-go-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    .grocery-go-btn:active { transform: scale(0.99); }
 
     /* ── SEASON BADGE ── */
     .season-badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 20px; padding: 2px 8px; font-size: 0.62rem; font-weight: 500; margin-left: 5px; }
@@ -822,12 +843,45 @@
 <button class="cta-btn" disabled="" id="ctaBtn" onclick="findDinners()">Select ingredients to begin</button>
 <button class="kids-btn" onclick="kidsMode()">🧒 Kids Dinner — quick, simple &amp; kid-approved!</button>
 <button class="surprise-btn" onclick="surpriseMe()">🎲 Surprise Me — pick random ingredients</button>
+<button class="grocery-btn" onclick="openGroceryMode()">🛒 Grocery Mode — build a shopping list instantly</button>
 </div>
 <!-- ── FLOATING WEEK BUTTON ── -->
 <button class="week-float" id="favFloat" onclick="openFavs()" style="display:none;bottom:auto;top:16px;right:16px;background:#E8A020;padding:8px 14px;font-size:0.8rem;">⭐ <span id="favCount">0</span></button>
 <button class="week-float" id="weekFloat" onclick="openPlanner()">
     📅 My Week <span class="wf-count" id="weekCount">0</span>
 </button>
+<!-- ── GROCERY MODE MODAL ── -->
+<div class="grocery-overlay" id="groceryOverlay" onclick="if(event.target===this)closeGroceryMode()">
+<div class="grocery-sheet">
+  <div class="modal-handle"></div>
+  <button class="close-btn" onclick="closeGroceryMode()">✕</button>
+  <div class="grocery-title">🛒 Grocery Mode</div>
+  <div class="grocery-sub">Already at the store? Pick how many meals you need and we'll build your list — no browsing required.</div>
+  <div class="grocery-section-label">How many dinners?</div>
+  <div class="meal-count-row">
+    <button class="meal-count-btn" onclick="setGroceryCount(1)">1</button>
+    <button class="meal-count-btn" onclick="setGroceryCount(2)">2</button>
+    <button class="meal-count-btn active" onclick="setGroceryCount(3)">3</button>
+    <button class="meal-count-btn" onclick="setGroceryCount(4)">4</button>
+    <button class="meal-count-btn" onclick="setGroceryCount(5)">5</button>
+  </div>
+  <div class="grocery-section-label">Dietary needs (optional)</div>
+  <div class="grocery-filter-row" id="groceryDietaryChips">
+    <button class="grocery-filter-chip" data-filter="vegetarian" onclick="toggleGroceryChip(this)">🥦 Vegetarian</button>
+    <button class="grocery-filter-chip" data-filter="gluten-free" onclick="toggleGroceryChip(this)">🌾 Gluten-Free</button>
+    <button class="grocery-filter-chip" data-filter="dairy-free" onclick="toggleGroceryChip(this)">🥛 Dairy-Free</button>
+    <button class="grocery-filter-chip" data-filter="nut-free" onclick="toggleGroceryChip(this)">🥜 Nut-Free</button>
+    <button class="grocery-filter-chip" data-filter="keto" onclick="toggleGroceryChip(this)">⚡ Keto</button>
+  </div>
+  <div class="grocery-section-label" style="margin-top:14px;">Max cook time (optional)</div>
+  <div class="grocery-filter-row" id="groceryTimeChips">
+    <button class="grocery-time-chip" data-mins="15" onclick="toggleGroceryTime(this)">⏱ 15 min</button>
+    <button class="grocery-time-chip" data-mins="30" onclick="toggleGroceryTime(this)">⏱ 30 min</button>
+    <button class="grocery-time-chip" data-mins="45" onclick="toggleGroceryTime(this)">⏱ 45 min</button>
+  </div>
+  <button class="grocery-go-btn" onclick="buildGroceryList()">Build My Shopping List →</button>
+</div>
+</div>
 <!-- ── WEEK PLANNER MODAL ── -->
 <div class="planner-overlay" id="plannerOverlay">
 <div class="planner-sheet">
@@ -2368,10 +2422,6 @@ function rateRecipe(recipeId, stars) {
   });
 })();
 
-function toggleStep(el) {
-  el.classList.toggle('step-done');
-}
-
 function leaveCookingView() {
   releaseWakeLock();
   clearRatePromptTimer();
@@ -2437,6 +2487,94 @@ const KIDS_RECIPE_IDS = [
 ];
 
 let _lastKidsId = null;
+
+// ── GROCERY MODE ──
+let groceryMealCount = 3;
+let groceryActiveFilters = new Set();
+let groceryTimeFilter = null;
+
+function openGroceryMode() {
+  groceryMealCount = 3;
+  groceryActiveFilters = new Set();
+  groceryTimeFilter = null;
+  // Reset UI
+  document.querySelectorAll('.meal-count-btn').forEach((b,i) => b.classList.toggle('active', i === 2));
+  document.querySelectorAll('.grocery-filter-chip').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.grocery-time-chip').forEach(b => b.classList.remove('active'));
+  document.getElementById('groceryOverlay').classList.add('active');
+}
+
+function closeGroceryMode() {
+  document.getElementById('groceryOverlay').classList.remove('active');
+}
+
+function setGroceryCount(n) {
+  groceryMealCount = n;
+  document.querySelectorAll('.meal-count-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.textContent) === n);
+  });
+}
+
+function toggleGroceryChip(btn) {
+  const f = btn.dataset.filter;
+  if (groceryActiveFilters.has(f)) { groceryActiveFilters.delete(f); btn.classList.remove('active'); }
+  else { groceryActiveFilters.add(f); btn.classList.add('active'); }
+}
+
+function toggleGroceryTime(btn) {
+  const mins = parseInt(btn.dataset.mins);
+  if (groceryTimeFilter === mins) {
+    groceryTimeFilter = null;
+    btn.classList.remove('active');
+  } else {
+    groceryTimeFilter = mins;
+    document.querySelectorAll('.grocery-time-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function buildGroceryList() {
+  // Build filtered recipe pool
+  let pool = RECIPES.filter(r => {
+    if (groceryActiveFilters.size > 0 && ![...groceryActiveFilters].every(f => r.tags.includes(f))) return false;
+    if (groceryTimeFilter && parseTime(r.time) > groceryTimeFilter) return false;
+    return true;
+  });
+
+  if (pool.length === 0) {
+    alert('No recipes match those filters. Try fewer restrictions.');
+    return;
+  }
+
+  // Pick N unique random recipes
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  const picked = shuffled.slice(0, Math.min(groceryMealCount, pool.length));
+
+  closeGroceryMode();
+
+  // Build subtitle for shopping list
+  const filters = [...groceryActiveFilters];
+  const timeStr = groceryTimeFilter ? ` · ≤${groceryTimeFilter} min` : '';
+  const filterStr = filters.length ? ` · ${filters.join(', ')}` : '';
+  const sub = `${picked.length} meal${picked.length > 1 ? 's' : ''} picked for you${filterStr}${timeStr}`;
+
+  // Open shopping list with these meals
+  window._activeShopSource = picked;
+  closePlanner();
+  shopViewMode = 'category';
+  document.getElementById('groupByCatBtn').style.background = 'var(--terracotta)';
+  document.getElementById('groupByCatBtn').style.color = 'white';
+  document.getElementById('groupByCatBtn').style.borderColor = 'var(--terracotta)';
+  document.getElementById('groupByMealBtn').style.background = 'transparent';
+  document.getElementById('groupByMealBtn').style.color = 'var(--charcoal-light)';
+  document.getElementById('groupByMealBtn').style.borderColor = '#DDD';
+  document.getElementById('shoplistSub').textContent = sub;
+  document.getElementById('copyBtn').textContent = '📋 Copy List to Clipboard';
+  document.getElementById('copyBtn').classList.remove('copied');
+  renderShoplistContent(picked);
+  buildAffiliateLinks(picked);
+  document.getElementById('shoplistOverlay').classList.add('active');
+}
 
 function kidsMode() {
   let pool = RECIPES.filter(r => KIDS_RECIPE_IDS.includes(r.id));
@@ -2958,30 +3096,33 @@ function setShopView(mode) {
   document.getElementById('groupByMealBtn').style.background = mode === 'meal' ? 'var(--terracotta)' : 'transparent';
   document.getElementById('groupByMealBtn').style.color = mode === 'meal' ? 'white' : 'var(--charcoal-light)';
   document.getElementById('groupByMealBtn').style.borderColor = mode === 'meal' ? 'var(--terracotta)' : '#DDD';
-  renderShoplistContent();
+  renderShoplistContent(window._activeShopSource || null);
 }
 
-function openShoppingList() {
+function openShoppingList(mealsOverride) {
   closePlanner();
+  window._activeShopSource = mealsOverride || null;
   shopViewMode = 'category';
   setShopView('category');
-  const mealCount = savedMeals.filter(Boolean).length;
+  const source = mealsOverride || savedMeals;
+  const mealCount = source.filter(Boolean).length;
   document.getElementById('shoplistSub').textContent = `Based on your ${mealCount} saved meal${mealCount > 1 ? 's' : ''}`;
   document.getElementById('copyBtn').textContent = '📋 Copy List to Clipboard';
   document.getElementById('copyBtn').classList.remove('copied');
-  renderShoplistContent();
-  buildAffiliateLinks();
+  renderShoplistContent(source);
+  buildAffiliateLinks(source);
   document.getElementById('shoplistOverlay').classList.add('active');
 }
 
-function renderShoplistContent() {
-  shopViewMode === 'meal' ? renderShopByMeal() : renderShopByCategory();
+function renderShoplistContent(source) {
+  shopViewMode === 'meal' ? renderShopByMeal(source) : renderShopByCategory(source);
 }
 
-function renderShopByCategory() {
+function renderShopByCategory(source) {
+  const meals = (source || savedMeals).filter(Boolean);
   const grouped = {};
   const seen = new Set();
-  savedMeals.filter(Boolean).forEach(meal => {
+  meals.forEach(meal => {
     meal.allIngredients.forEach(ing => {
       const key = ing.toLowerCase().replace(/\d+[\s\/]*(lb|oz|cup|tbsp|tsp|can|clove|cloves|slice|slices|tbsps|tsps|cups|lbs|oz)s?\s*/gi,'').trim();
       if (seen.has(key)) return;
@@ -3002,9 +3143,10 @@ function renderShopByCategory() {
   document.getElementById('shoplistContent').innerHTML = html;
 }
 
-function renderShopByMeal() {
+function renderShopByMeal(source) {
+  const meals = (source || savedMeals).filter(Boolean);
   let html = '';
-  savedMeals.filter(Boolean).forEach(meal => {
+  meals.forEach(meal => {
     html += `<div class="shoplist-group"><div class="shoplist-group-title" style="font-size:0.72rem;">${meal.name}</div>
       ${meal.allIngredients.map(ing => `<div class="shoplist-item" onclick="toggleShopItem(this)"><div class="shoplist-check"></div><span>${ing}</span></div>`).join('')}
     </div>`;
@@ -3012,7 +3154,7 @@ function renderShopByMeal() {
   document.getElementById('shoplistContent').innerHTML = html;
 }
 
-async function buildAffiliateLinks() {
+async function buildAffiliateLinks(source) {
   const STORE_MAP = {
     US: [
       { label:'🟠 Instacart', cls:'instacart', url: q => `https://www.instacart.com/store/search_v3/${q}?affiliate_id=YOUR_INSTACART_AFFILIATE_ID` },
@@ -3042,7 +3184,7 @@ async function buildAffiliateLinks() {
   ];
 
   const seen = new Set();
-  savedMeals.filter(Boolean).forEach(m => m.allIngredients.forEach(ing => {
+  (source || savedMeals).filter(Boolean).forEach(m => m.allIngredients.forEach(ing => {
     const key = ing.toLowerCase().replace(/\d+[\s\/]*(lb|oz|cup|tbsp|tsp|can|clove|cloves|slice|slices|tbsps|tsps|cups|lbs|oz)s?\s*/gi,'').trim();
     seen.add(key);
   }));
@@ -3065,7 +3207,7 @@ function toggleShopItem(el) {
   el.classList.toggle('checked');
 }
 
-function closeShoppingList() { document.getElementById('shoplistOverlay').classList.remove('active'); }
+function closeShoppingList() { window._activeShopSource = null; document.getElementById('shoplistOverlay').classList.remove('active'); }
 
 // ─────────────────────────────────────────────
 //  PRINT / SAVE AS PDF
