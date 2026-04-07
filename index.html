@@ -201,7 +201,7 @@
     /* ── #WINNING FEATURE ── */
     .winning-fab {
       position: fixed;
-      bottom: 112px;
+      bottom: 164px;
       right: 16px;
       width: 44px;
       height: 44px;
@@ -3669,7 +3669,8 @@ function getWinningPhotos() {
 }
 
 function saveWinningPhotos(photos) {
-  localStorage.setItem(WINNING_KEY, JSON.stringify(photos));
+  try { localStorage.setItem(WINNING_KEY, JSON.stringify(photos)); }
+  catch(e) { alert('Not enough storage to save photo.'); }
 }
 
 function thumbsBurst(el) {
@@ -3723,6 +3724,7 @@ function triggerWinningCamera() {
 function handleWinningPhoto(e) {
   const file = e.target.files[0];
   if (!file) return;
+  if (!file.type.startsWith('image/')) return;
   const reader = new FileReader();
   reader.onload = function(ev) {
     const img = new Image();
