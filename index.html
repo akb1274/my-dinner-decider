@@ -700,6 +700,21 @@
     .rate-prompt-stars .star.lit { color: #F9A825; }
     .rate-prompt-dismiss { background: none; border: none; color: var(--charcoal-light); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; padding: 6px 14px; transition: color 0.15s; }
     .rate-prompt-dismiss:hover { color: var(--terracotta); }
+    /* ── App Review Nudge ── */
+    .review-nudge-overlay { position: fixed; inset: 0; background: rgba(30,25,20,0.72); z-index: 450; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .review-nudge-overlay.active { display: flex; }
+    .review-nudge { background: var(--cream); border-radius: 22px; padding: 30px 24px 22px; max-width: 320px; width: 100%; text-align: center; animation: slideUp 0.38s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .review-nudge-emoji { font-size: 2.4rem; margin-bottom: 8px; }
+    .review-nudge-title { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; }
+    .review-nudge-sub { font-size: 0.8rem; color: var(--charcoal-light); line-height: 1.55; margin-bottom: 20px; }
+    .review-nudge-btns { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .review-nudge-btn { padding: 11px 16px; border-radius: 12px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.18s; }
+    .review-nudge-btn.gumroad { background: var(--terracotta); color: white; }
+    .review-nudge-btn.etsy { background: #F56400; color: white; }
+    .review-nudge-btn.gumroad:hover { filter: brightness(1.08); }
+    .review-nudge-btn.etsy:hover { filter: brightness(1.08); }
+    .review-nudge-dismiss { background: none; border: none; color: var(--charcoal-light); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; cursor: pointer; padding: 4px 10px; }
+    .review-nudge-dismiss:hover { color: var(--terracotta); }
 
     /* ── WAKE LOCK INDICATOR ── */
     .wake-lock-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--cream-dark); border-radius: 20px; padding: 3px 10px; font-size: 0.62rem; font-weight: 500; color: var(--sage); white-space: nowrap; }
@@ -926,6 +941,20 @@
 <div class="affiliate-buttons" id="shoplistAffiliateLinks"></div>
 </div>
 </div>
+</div>
+
+<!-- ── REVIEW NUDGE ── -->
+<div class="review-nudge-overlay" id="reviewNudgeOverlay">
+  <div class="review-nudge">
+    <div class="review-nudge-emoji">🌟</div>
+    <div class="review-nudge-title">Glad you loved it!</div>
+    <div class="review-nudge-sub">Would you mind leaving a quick review? It means the world to a small family-built app — and helps other busy parents find us.</div>
+    <div class="review-nudge-btns">
+      <button class="review-nudge-btn gumroad" onclick="openReviewLink('gumroad')">⭐ Leave a review on Gumroad</button>
+      <button class="review-nudge-btn etsy" onclick="openReviewLink('etsy')">⭐ Leave a review on Etsy</button>
+    </div>
+    <button class="review-nudge-dismiss" onclick="dismissReviewNudge()">Maybe later</button>
+  </div>
 </div>
 <!-- ── RESULTS MODAL ── -->
 <div class="modal-overlay" id="resultsModal" onclick="if(event.target===this)closeModal()">
@@ -2396,6 +2425,7 @@ function rateRecipe(recipeId, stars) {
   const current = ratings[recipeId] || 0;
   const newRating = (current === stars) ? 0 : stars;
   saveRating(recipeId, newRating);
+  maybeShowReviewNudge(newRating);
   const container = document.getElementById('stars-' + recipeId);
   if (container) {
     container.querySelectorAll('.star').forEach((s, i) => {
@@ -3380,6 +3410,31 @@ function copyList() {
   }
 }
 
+
+// ─────────────────────────────────────────────
+//  REVIEW NUDGE
+// ─────────────────────────────────────────────
+function maybeShowReviewNudge(stars) {
+  if (stars < 4) return;
+  try { if (localStorage.getItem('mdd_reviewed')) return; } catch(e) {}
+  setTimeout(() => {
+    const overlay = document.getElementById('reviewNudgeOverlay');
+    if (overlay) overlay.classList.add('active');
+  }, 800);
+}
+function openReviewLink(platform) {
+  try { localStorage.setItem('mdd_reviewed', '1'); } catch(e) {}
+  document.getElementById('reviewNudgeOverlay').classList.remove('active');
+  const urls = {
+    gumroad: 'https://app.gumroad.com/products',
+    etsy: 'https://www.etsy.com/your/purchases'
+  };
+  window.open(urls[platform], '_blank');
+}
+function dismissReviewNudge() {
+  try { localStorage.setItem('mdd_reviewed', '1'); } catch(e) {}
+  document.getElementById('reviewNudgeOverlay').classList.remove('active');
+}
 // ─────────────────────────────────────────────
 //  LICENSE GATE
 // ─────────────────────────────────────────────
