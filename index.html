@@ -954,6 +954,7 @@
 </div>
 <div id="shoplistContent"></div>
 <button class="copy-btn" id="copyBtn" onclick="copyList()">📋 Copy / Share List</button>
+<button class="partner-btn" onclick="sendGroceryListToPartner()" style="margin-top:8px;">💬 Text list to my partner</button>
 <div class="affiliate-section" style="margin-top:14px;">
 <div class="affiliate-label">Ready to order? Get everything delivered:</div>
 <div class="affiliate-buttons" id="shoplistAffiliateLinks"></div>
@@ -3342,27 +3343,39 @@ function printRecipe(recipe) {
 // ─────────────────────────────────────────────
 //  SEND TO PARTNER
 // ─────────────────────────────────────────────
-let _pendingPartnerRecipe = null;
+let _pendingPartnerMessage = null;
 
 function getPartnerPhone() {
   try { return localStorage.getItem('mdd_partner_phone') || ''; } catch(e) { return ''; }
 }
 
-function sendToPartner(recipe) {
+function _sendViaPartnerSms(message) {
   const phone = getPartnerPhone();
   if (!phone) {
-    _pendingPartnerRecipe = recipe;
+    _pendingPartnerMessage = message;
     openPartnerPhoneModal();
     return;
   }
-  doSendPartnerSms(phone, recipe);
+  window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
 }
 
-function doSendPartnerSms(phone, recipe) {
+function sendToPartner(recipe) {
   const ingredientList = recipe.allIngredients.join('\n• ');
   const message = `Hey! Can you grab these ingredients on the way home? 🍽️\n\nTonight's dinner: ${recipe.name} (${recipe.time})\n\nShopping list:\n• ${ingredientList}\n\nThanks! ❤️`;
-  const smsUrl = `sms:${phone}?body=${encodeURIComponent(message)}`;
-  window.location.href = smsUrl;
+  _sendViaPartnerSms(message);
+}
+
+function sendGroceryListToPartner() {
+  const lines = ["Hey! Here's our shopping list for the week 🛒\n"];
+  document.querySelectorAll('.shoplist-group').forEach(group => {
+    const title = group.querySelector('.shoplist-group-title').textContent;
+    lines.push(`\n${title.toUpperCase()}`);
+    group.querySelectorAll('.shoplist-item span').forEach(item => {
+      lines.push(`• ${item.textContent}`);
+    });
+  });
+  lines.push('\nThanks! ❤️');
+  _sendViaPartnerSms(lines.join('\n'));
 }
 
 function openPartnerPhoneModal() {
@@ -3385,12 +3398,10 @@ function savePartnerPhoneAndSend() {
   if (!raw) { input.focus(); input.style.borderColor = 'var(--terracotta)'; return; }
   input.style.borderColor = '';
   try { localStorage.setItem('mdd_partner_phone', raw); } catch(e) {}
+  const msg = _pendingPartnerMessage;
+  _pendingPartnerMessage = null;
   closePartnerPhoneModal();
-  if (_pendingPartnerRecipe) {
-    const recipe = _pendingPartnerRecipe;
-    _pendingPartnerRecipe = null;
-    doSendPartnerSms(raw, recipe);
-  }
+  if (msg) window.location.href = `sms:${raw}?body=${encodeURIComponent(msg)}`;
 }
 
 function clearPartnerPhone() {
