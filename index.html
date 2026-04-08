@@ -170,12 +170,16 @@
     }
     .ingredient-tile { animation: tileIn 0.35s ease both; }
 
+    /* ── RE-ROLL BUTTON ── */
+    .reroll-btn { width: 100%; margin-top: 14px; padding: 12px; border: 1.5px dashed #C8B89A; background: transparent; color: var(--charcoal-light); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all 0.18s; letter-spacing: 0.01em; }
+    .reroll-btn:hover { border-color: var(--charcoal); color: var(--charcoal); background: var(--cream-dark); }
+
     /* ── STAR RATING ── */
     .star-row { display: flex; align-items: center; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--cream-dark); }
     .star-label { font-size: 0.68rem; color: var(--charcoal-light); }
     .stars { display: flex; gap: 2px; }
-    .star { font-size: 1.1rem; cursor: pointer; transition: transform 0.15s; line-height: 1; filter: grayscale(1) opacity(0.35); }
-    .star:hover, .star.lit { filter: none; transform: scale(1.2); }
+    .star { font-size: 1.1rem; cursor: pointer; transition: transform 0.15s, color 0.15s; line-height: 1; color: #C8A45A; opacity: 0.45; }
+    .star:hover, .star.lit { color: #F9A825; opacity: 1; transform: scale(1.2); }
     .star.lit { transform: scale(1); }
     .last-cooked { font-size: 0.65rem; color: var(--charcoal-light); margin-left: auto; font-style: italic; }
 
@@ -2135,6 +2139,9 @@ function findDinners() {
   // Guarantee at least one result per selected protein
   const selectedProteins = selectedArr.filter(id => PROTEINS.includes(id));
   
+  _lastPool = pool;
+  _shownIds = new Set();
+
   let results = [];
   const used = new Set();
 
@@ -2151,6 +2158,7 @@ function findDinners() {
     if (!used.has(r.id)) { results.push(r); used.add(r.id); }
   }
   results = results.slice(0, 3);
+  results.forEach(r => _shownIds.add(r.id));
   document.getElementById('resultsModal').classList.add('active');
   renderResults(results, selectedArr, strictMode);
 }
@@ -2160,6 +2168,8 @@ function findDinners() {
 // ─────────────────────────────────────────────
 let _lastResults = [];
 let _lastSelectedArr = [];
+let _lastPool = [];
+let _shownIds = new Set();
 
 const CUISINE_EMOJI = { American:'🇺🇸', Mexican:'🌮', Italian:'🍝', Mediterranean:'🫒', Asian:'🥢' };
 
@@ -2213,7 +2223,20 @@ function renderResults(results, selectedArr, strictMode = false) {
       </div>`;
   });
 
+  const hasMore = _lastPool.filter(r => !_shownIds.has(r.id)).length > 0;
+  if (hasMore) {
+    html += `<button class="reroll-btn" onclick="rerollResults()">🔀 Show me different options</button>`;
+  }
+
   document.getElementById('modalContent').innerHTML = html;
+}
+
+function rerollResults() {
+  const remaining = _lastPool.filter(r => !_shownIds.has(r.id));
+  const next = remaining.slice(0, 3);
+  if (!next.length) return;
+  next.forEach(r => _shownIds.add(r.id));
+  renderResults(next, _lastSelectedArr);
 }
 
 // ─────────────────────────────────────────────
@@ -3079,8 +3102,8 @@ function swapMeals(fromIdx, toIdx) {
   const tmp = savedMeals[fromIdx];
   savedMeals[fromIdx] = savedMeals[toIdx];
   savedMeals[toIdx] = tmp;
-  // Clean up trailing nulls
-  while (savedMeals.length > 0 && savedMeals[savedMeals.length - 1] === null) savedMeals.pop();
+  // Clean up all nulls (not just trailing — drag to empty slot can leave gaps)
+  savedMeals = savedMeals.filter(Boolean);
   updateWeekFloat();
   renderPlannerSlots();
 }
@@ -3398,7 +3421,11 @@ function copyList() {
   const text = lines.join('\n');
   const btn = document.getElementById('copyBtn');
   if (navigator.share) {
-    navigator.share({ text }).catch(() => {
+    navigator.share({ text }).then(() => {
+      btn.textContent = '✅ Shared!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy / Share List'; btn.classList.remove('copied'); }, 2500);
+    }).catch(() => {
       navigator.clipboard.writeText(text);
     });
   } else {
@@ -3467,7 +3494,7 @@ function submitLicense() {
     const error = document.getElementById('licenseError');
     const code = input.value.trim().toUpperCase();
 
-    if (isValidGumroadKey(code) || LICENSE_KEYS.has(code)) {
+    if (isValidGumroadKey(code) && LICENSE_KEYS.has(code)) {
       // Save to localStorage (non-fatal if it fails)
       try { localStorage.setItem('mdd_licensed', '1'); } catch(e) {}
 
