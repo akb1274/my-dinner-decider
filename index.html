@@ -97,9 +97,9 @@
     .tile-emoji { font-size: 1.55rem; display: block; margin-bottom: 3px; line-height: 1; }
     .tile-name { font-size: 0.68rem; font-weight: 500; color: var(--charcoal); line-height: 1.25; }
     .cta-container { position: fixed; bottom: 0; left: 0; right: 0; padding: 14px 16px max(20px, env(safe-area-inset-bottom, 20px)); background: linear-gradient(to top, var(--cream) 65%, transparent); z-index: 100; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
-    .cta-container.collapsed { transform: translateY(calc(100% - 36px)); }
-    .cta-toggle { width: 48px; height: 28px; background: var(--cream); border: 1.5px solid #DDD; border-radius: 20px 20px 0 0; border-bottom: none; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto -1px; position: relative; z-index: 1; box-shadow: 0 -2px 8px rgba(0,0,0,0.06); }
-    .cta-toggle-arrow { font-size: 0.75rem; transition: transform 0.3s; color: var(--charcoal-light); }
+    .cta-container.collapsed { transform: translateY(calc(100% - 44px)); }
+    .cta-toggle { width: 80px; height: 44px; background: var(--cream); border: 1.5px solid #DDD; border-radius: 24px 24px 0 0; border-bottom: none; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto -1px; position: relative; z-index: 1; box-shadow: 0 -2px 8px rgba(0,0,0,0.06); -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .cta-toggle-arrow { font-size: 1rem; transition: transform 0.3s; color: var(--charcoal-light); }
     .cta-container.collapsed .cta-toggle-arrow { transform: rotate(180deg); }
     .cta-btn { width: 100%; max-width: 600px; display: block; margin: 0 auto; background: var(--terracotta); color: white; border: none; border-radius: 14px; padding: 15px 24px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s; box-shadow: 0 5px 22px rgba(196,98,45,0.38); letter-spacing: 0.01em; }
     .cta-btn:hover:not(:disabled) { background: var(--terracotta-light); transform: translateY(-1px); box-shadow: 0 7px 28px rgba(196,98,45,0.48); }
@@ -213,7 +213,7 @@
       background: linear-gradient(135deg, #f5c842, #e8a020);
       border: none;
       cursor: pointer;
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.3rem;
@@ -722,6 +722,20 @@
 
     /* ── WAKE LOCK INDICATOR ── */
     .wake-lock-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--cream-dark); border-radius: 20px; padding: 3px 10px; font-size: 0.62rem; font-weight: 500; color: var(--sage); white-space: nowrap; }
+
+    /* ── PARTNER PHONE MODAL ── */
+    .partner-phone-overlay { position: fixed; inset: 0; background: rgba(30,25,20,0.65); z-index: 350; display: none; align-items: flex-end; justify-content: center; }
+    .partner-phone-overlay.active { display: flex; }
+    .partner-phone-sheet { background: var(--cream); border-radius: 22px 22px 0 0; width: 100%; max-width: 600px; padding: 10px 24px max(40px, env(safe-area-inset-bottom, 40px)); animation: slideUp 0.38s cubic-bezier(0.16,1,0.3,1); }
+    .partner-phone-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+    .partner-phone-sub { font-size: 0.78rem; color: var(--charcoal-light); margin-bottom: 20px; }
+    .partner-phone-input { width: 100%; padding: 13px 14px; border: 1.5px solid #C2DAC8; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 1rem; background: var(--white); color: var(--charcoal); box-sizing: border-box; margin-bottom: 12px; -webkit-appearance: none; }
+    .partner-phone-input:focus { outline: none; border-color: var(--sage); }
+    .partner-phone-send-btn { width: 100%; padding: 13px; background: var(--sage); color: white; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: background 0.18s; }
+    .partner-phone-send-btn:hover { background: #3a6347; }
+    .partner-phone-note { font-size: 0.7rem; color: var(--charcoal-light); text-align: center; margin-bottom: 8px; }
+    .partner-phone-note a { color: var(--terracotta); text-decoration: none; }
+    .partner-phone-cancel { width: 100%; padding: 10px; background: transparent; border: none; color: var(--charcoal-light); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; }
   </style>
 <link href="app-icon.png" rel="apple-touch-icon" sizes="180x180"/><link href="app-icon.png" rel="icon" sizes="32x32" type="image/png"/><link href="app-icon.png" rel="icon" sizes="16x16" type="image/png"/></head>
 <body>
@@ -3328,24 +3342,65 @@ function printRecipe(recipe) {
 // ─────────────────────────────────────────────
 //  SEND TO PARTNER
 // ─────────────────────────────────────────────
+let _pendingPartnerRecipe = null;
+
+function getPartnerPhone() {
+  try { return localStorage.getItem('mdd_partner_phone') || ''; } catch(e) { return ''; }
+}
+
 function sendToPartner(recipe) {
+  const phone = getPartnerPhone();
+  if (!phone) {
+    _pendingPartnerRecipe = recipe;
+    openPartnerPhoneModal();
+    return;
+  }
+  doSendPartnerSms(phone, recipe);
+}
+
+function doSendPartnerSms(phone, recipe) {
   const ingredientList = recipe.allIngredients.join('\n• ');
   const message = `Hey! Can you grab these ingredients on the way home? 🍽️\n\nTonight's dinner: ${recipe.name} (${recipe.time})\n\nShopping list:\n• ${ingredientList}\n\nThanks! ❤️`;
-  // Try SMS first (works on mobile), fall back to clipboard
-  if (navigator.share) {
-    navigator.share({ text: message }).catch(() => fallbackCopy(message));
-  } else {
-    const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
-    const link = document.createElement('a');
-    link.href = smsUrl;
-    link.click();
+  const smsUrl = `sms:${phone}?body=${encodeURIComponent(message)}`;
+  window.location.href = smsUrl;
+}
+
+function openPartnerPhoneModal() {
+  const modal = document.getElementById('partnerPhoneModal');
+  const input = document.getElementById('partnerPhoneInput');
+  const saved = getPartnerPhone();
+  input.value = saved || '';
+  document.getElementById('partnerPhoneClearNote').style.display = saved ? '' : 'none';
+  modal.classList.add('active');
+  setTimeout(() => input.focus(), 350);
+}
+
+function closePartnerPhoneModal() {
+  document.getElementById('partnerPhoneModal').classList.remove('active');
+}
+
+function savePartnerPhoneAndSend() {
+  const input = document.getElementById('partnerPhoneInput');
+  const raw = input.value.trim().replace(/[\s\-\(\)]/g, '');
+  if (!raw) { input.focus(); input.style.borderColor = 'var(--terracotta)'; return; }
+  input.style.borderColor = '';
+  try { localStorage.setItem('mdd_partner_phone', raw); } catch(e) {}
+  closePartnerPhoneModal();
+  if (_pendingPartnerRecipe) {
+    const recipe = _pendingPartnerRecipe;
+    _pendingPartnerRecipe = null;
+    doSendPartnerSms(raw, recipe);
   }
 }
 
-function fallbackCopy(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Shopping list copied to clipboard! Paste it into a text or message. 📋');
-  });
+function clearPartnerPhone() {
+  try { localStorage.removeItem('mdd_partner_phone'); } catch(e) {}
+  document.getElementById('partnerPhoneInput').value = '';
+  document.getElementById('partnerPhoneClearNote').style.display = 'none';
+}
+
+function partnerPhoneInputKeydown(e) {
+  if (e.key === 'Enter') savePartnerPhoneAndSend();
 }
 // ─────────────────────────────────────────────
 const TOTAL_SLIDES = 8;
@@ -3472,8 +3527,6 @@ function initLicense() {
   try { unlocked = localStorage.getItem('mdd_licensed') === '1'; } catch(e) {}
   if (unlocked) {
     document.getElementById('licenseOverlay').style.display = 'none';
-    const fab = document.querySelector('.winning-fab');
-    if (fab) fab.style.display = 'flex';
     return;
   }
   const input = document.getElementById('licenseInput');
@@ -3504,9 +3557,6 @@ function submitLicense() {
       overlay.style.opacity = '0';
       setTimeout(() => {
         overlay.style.display = 'none';
-        // Show the #Winning FAB now that app is unlocked
-        const fab = document.querySelector('.winning-fab');
-        if (fab) fab.style.display = 'flex';
         // Show toast if it exists
         try {
           const toast = document.getElementById('thanksToast');
@@ -3919,6 +3969,19 @@ function deleteMealPhoto(recipeId) {
     <div class="winning-hint">Saves up to 3 photos · stored only on this device</div>
     <input type="file" accept="image/*" capture="environment" id="winningCameraInput" style="display:none" onchange="handleWinningPhoto(event)">
     <input type="file" accept="image/*" capture="environment" id="mealPhotoCameraInput" style="display:none" onchange="handleMealPhoto(event)">
+  </div>
+</div>
+
+<!-- PARTNER PHONE MODAL -->
+<div class="partner-phone-overlay" id="partnerPhoneModal" onclick="if(event.target===this)closePartnerPhoneModal()">
+  <div class="partner-phone-sheet">
+    <div class="modal-handle"></div>
+    <div class="partner-phone-title">📱 Who gets the text?</div>
+    <div class="partner-phone-sub">Save your partner's number — we'll remember it for next time.</div>
+    <input id="partnerPhoneInput" class="partner-phone-input" type="tel" inputmode="tel" placeholder="+1 555 123 4567" onkeydown="partnerPhoneInputKeydown(event)">
+    <button class="partner-phone-send-btn" onclick="savePartnerPhoneAndSend()">Save &amp; Send Text 💬</button>
+    <div class="partner-phone-note" id="partnerPhoneClearNote">Stored only on your device. &nbsp;<a href="#" onclick="clearPartnerPhone();return false;">Clear saved number</a></div>
+    <button class="partner-phone-cancel" onclick="closePartnerPhoneModal()">Cancel</button>
   </div>
 </div>
 
