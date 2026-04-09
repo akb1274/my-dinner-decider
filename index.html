@@ -3641,30 +3641,46 @@ function parseIngredientParts(ing) {
 }
 
 // ─────────────────────────────────────────────
+//  FEATURE: STEP CHECKLIST
+// ─────────────────────────────────────────────
+function toggleStep(li) {
+  li.classList.toggle('step-done');
+}
+
+// ─────────────────────────────────────────────
 //  FEATURE: WAKE LOCK (keep screen on)
 // ─────────────────────────────────────────────
 let _wakeLock = null;
+let _wakeLockHeartbeat = null;
+
+async function _acquireWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    _wakeLock = await navigator.wakeLock.request('screen');
+    _wakeLock.addEventListener('release', () => { _wakeLock = null; });
+  } catch(e) { /* not supported or denied */ }
+}
 
 async function requestWakeLock() {
-  try {
-    if ('wakeLock' in navigator) {
-      _wakeLock = await navigator.wakeLock.request('screen');
-      _wakeLock.addEventListener('release', () => { _wakeLock = null; });
+  await _acquireWakeLock();
+  // Heartbeat: re-acquire every 10 s if the OS released the lock while cooking
+  if (_wakeLockHeartbeat) clearInterval(_wakeLockHeartbeat);
+  _wakeLockHeartbeat = setInterval(async () => {
+    if (!_wakeLock && document.querySelector('.recipe-card')) {
+      await _acquireWakeLock();
     }
-  } catch(e) { /* silently fail if not supported */ }
+  }, 10000);
 }
 
 function releaseWakeLock() {
-  if (_wakeLock) {
-    _wakeLock.release().catch(() => {});
-    _wakeLock = null;
-  }
+  if (_wakeLockHeartbeat) { clearInterval(_wakeLockHeartbeat); _wakeLockHeartbeat = null; }
+  if (_wakeLock) { _wakeLock.release().catch(() => {}); _wakeLock = null; }
 }
 
-// Re-acquire wake lock when returning to the page (e.g., switching tabs)
+// Re-acquire when user returns to the tab while on the cooking card
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && document.querySelector('.recipe-card')) {
-    requestWakeLock();
+    _acquireWakeLock();
   }
 });
 
