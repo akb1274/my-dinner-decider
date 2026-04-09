@@ -2231,7 +2231,7 @@ function renderResults(results, selectedArr, strictMode = false) {
             <span class="recipe-cuisine">${CUISINE_EMOJI[recipe.cuisine] || ''} ${recipe.cuisine}</span>
             <span class="match-score" style="margin:0;">✅ ${matchedCount} ingredient${matchedCount !== 1 ? 's' : ''} matched</span>
             <button class="fav-btn ${getFavs().find(f=>f.id===recipe.id)?'saved':''}" onclick="toggleFav('${recipe.id}')" title="Save to favorites">${getFavs().find(f=>f.id===recipe.id)?'★':'☆'}</button>
-            <button class="cart-btn ${savedMeals.find(m=>m&&m.id===recipe.id)?'added':''}" onclick="quickAddToShop(event,'${recipe.id}')" title="Add to shopping list">🛒</button>
+            <button class="cart-btn ${savedMeals.find(m=>m&&m.id===recipe.id)?'added':''}" onclick="quickAddToShop(event,'${recipe.id}')" title="Save to My Week">📅</button>
           </div>
         </div>
         <span class="choice-card-arrow">›</span>
