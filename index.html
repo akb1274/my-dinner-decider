@@ -3000,7 +3000,7 @@ function quickAddToShop(e, recipeId) {
     // Remove it
     savedMeals = savedMeals.filter(m => m.id !== recipe.id);
     updateWeekFloat();
-    btn.textContent = '🛒';
+    btn.textContent = '📅';
     btn.classList.remove('added');
     btn.style.transform = 'scale(1.4)';
     setTimeout(() => { btn.style.transform = ''; }, 250);
