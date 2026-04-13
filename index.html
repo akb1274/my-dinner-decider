@@ -919,7 +919,7 @@
 </div>
 </div>
 <!-- ── WEEK PLANNER MODAL ── -->
-<div class="planner-overlay" id="plannerOverlay">
+<div class="planner-overlay" id="plannerOverlay" onclick="if(event.target===this)closePlanner()">
 <div class="planner-sheet">
 <div class="modal-handle"></div>
 <button class="close-btn" onclick="closePlanner()">✕</button>
@@ -934,7 +934,7 @@
 </div>
 <!-- ── SHOPPING LIST MODAL ── -->
 <!-- ── FAVORITES SHEET ── -->
-<div class="fav-overlay" id="favOverlay">
+<div class="fav-overlay" id="favOverlay" onclick="if(event.target===this)closeFavs()">
 <div class="fav-sheet">
 <button onclick="closeFavs()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#888">✕</button>
 <div class="fav-title">⭐ Favorites</div>
@@ -942,7 +942,7 @@
 <div id="favContent"></div>
 </div>
 </div>
-<div class="shoplist-overlay" id="shoplistOverlay">
+<div class="shoplist-overlay" id="shoplistOverlay" onclick="if(event.target===this)closeShoppingList()">
 <div class="shoplist-sheet">
 <div class="modal-handle"></div>
 <button class="close-btn" onclick="closeShoppingList()">✕</button>
@@ -963,7 +963,7 @@
 </div>
 
 <!-- ── REVIEW NUDGE ── -->
-<div class="review-nudge-overlay" id="reviewNudgeOverlay">
+<div class="review-nudge-overlay" id="reviewNudgeOverlay" onclick="if(event.target===this)dismissReviewNudge()">
   <div class="review-nudge">
     <div class="review-nudge-emoji">🌟</div>
     <div class="review-nudge-title">Glad you loved it!</div>
