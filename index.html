@@ -479,9 +479,9 @@
     .fav-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 4px 6px; line-height: 1; transition: transform 0.2s; color: #CCC; }
     .fav-btn.saved { color: #E8A020; }
     .fav-btn:active { transform: scale(1.3); }
-    .cart-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px 6px; line-height: 1; transition: transform 0.2s; color: #CCC; }
-    .cart-btn.added { color: #4CAF82; }
-    .cart-btn:active { transform: scale(1.3); }
+    .add-week-btn { display: inline-flex; align-items: center; gap: 4px; background: transparent; border: 1.5px solid var(--sage); color: var(--sage); border-radius: 20px; padding: 4px 12px; font-size: 0.65rem; font-weight: 600; margin-top: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.18s; line-height: 1.4; }
+    .add-week-btn.added { background: var(--sage); color: white; border-color: var(--sage); }
+    .add-week-btn:active { transform: scale(0.96); }
     .fav-overlay { position: fixed; inset: 0; background: rgba(30,25,20,0.75); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
     .fav-overlay.active { display: flex; }
     .fav-sheet { position: relative; background: var(--cream); border-radius: 22px 22px 0 0; width: 100%; max-width: 600px; max-height: 88vh; overflow-y: auto; padding: 10px 18px 36px; animation: slideUp 0.38s cubic-bezier(0.16,1,0.3,1); }
@@ -2231,8 +2231,8 @@ function renderResults(results, selectedArr, strictMode = false) {
             <span class="recipe-cuisine">${CUISINE_EMOJI[recipe.cuisine] || ''} ${recipe.cuisine}</span>
             <span class="match-score" style="margin:0;">✅ ${matchedCount} ingredient${matchedCount !== 1 ? 's' : ''} matched</span>
             <button class="fav-btn ${getFavs().find(f=>f.id===recipe.id)?'saved':''}" onclick="toggleFav('${recipe.id}')" title="Save to favorites">${getFavs().find(f=>f.id===recipe.id)?'★':'☆'}</button>
-            <button class="cart-btn ${savedMeals.find(m=>m&&m.id===recipe.id)?'added':''}" onclick="quickAddToShop(event,'${recipe.id}')" title="Save to My Week">📅</button>
           </div>
+          <button class="add-week-btn ${savedMeals.find(m=>m&&m.id===recipe.id)?'added':''}" onclick="quickAddToShop(event,'${recipe.id}')">${savedMeals.find(m=>m&&m.id===recipe.id)?'✓ In My Week':'+ Add to My Week'}</button>
         </div>
         <span class="choice-card-arrow">›</span>
       </div>`;
@@ -3000,11 +3000,9 @@ function quickAddToShop(e, recipeId) {
     // Remove it
     savedMeals = savedMeals.filter(m => m.id !== recipe.id);
     updateWeekFloat();
-    btn.textContent = '📅';
+    btn.textContent = '+ Add to My Week';
     btn.classList.remove('added');
-    btn.style.transform = 'scale(1.4)';
-    setTimeout(() => { btn.style.transform = ''; }, 250);
-    showToast('Removed from shopping list');
+    showToast('Removed from My Week');
     return;
   }
   if (savedMeals.length >= MAX_WEEK) {
@@ -3012,11 +3010,9 @@ function quickAddToShop(e, recipeId) {
   }
   savedMeals.push(recipe);
   updateWeekFloat();
-  btn.textContent = '✅';
+  btn.textContent = '✓ In My Week';
   btn.classList.add('added');
-  btn.style.transform = 'scale(1.4)';
-  setTimeout(() => { btn.style.transform = ''; }, 250);
-  showToast('Added to shopping list 🛒');
+  showToast('Added to My Week');
 }
 
 function saveMeal(recipe) {
